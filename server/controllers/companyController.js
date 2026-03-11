@@ -70,6 +70,33 @@ export const getAllCompany = async (req, res) => {
   }
 };
 
+export const getCompanyById = async (req, res) => {
+  try {
+    const { companyId } = req.params
+
+    const company = await Company.findById(companyId).populate("user", "name email")
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "company not found",
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "company found",
+      data: company,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+      error: error.message,
+    })
+  }
+}
+
 export const updateCompany = async (req, res) => {
   try {
     const { companyId } = req.params;

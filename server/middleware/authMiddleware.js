@@ -24,28 +24,14 @@ export const authMiddleware = (req, res,next) => {
   }
 };
 
-
-export const authorizedMiddleware= async(req,res,next)=>{
-
-try {
-
-    if(req.user.role!="admin")
-    {
-      return  res.status(400).json({
-            message:"Not authorized",
-            success:false
-        })
+export const authorizeMiddleware = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: "Not authorized",
+        success: false,
+      });
     }
-next()
-
-
-} catch (error) {
-    return  res.status(500).json({
-            message:"server error",
-            success:false
-        })
-}
-
-
-
-}
+    next();
+  };
+};

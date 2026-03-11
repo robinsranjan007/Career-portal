@@ -1,4 +1,4 @@
-import Application from "../models/Application.js";
+import Application from "../models/Application.js"; 
 
 export const applyJob = async (req, res) => {
   try {
@@ -124,7 +124,7 @@ export const updateApplication = async (req, res) => {
   }
 };
 
-export const deleteApplicaiton = async (req, res) => {
+export const deleteApplication = async (req, res) => {
   try {
     const { applicationId } = req.params;
 

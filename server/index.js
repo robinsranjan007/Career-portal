@@ -8,7 +8,11 @@ import jobRoutes from './routes/jobRoutes.js'
 import compnayRoutes from './routes/companyRoutes.js'
 import applicationRoutes from './routes/applicaitonRoutes.js'
 import profileRoutes from './routes/profileRoutes.js'
-
+import './models/User.js'
+import './models/Company.js'
+import './models/Jobs.js'
+import './models/Application.js'
+import './models/Profile.js'
 const app= express()
 
 dotenv.config()
@@ -26,7 +30,7 @@ app.use(cors({
 //middleware 
 app.use(cookieParser())
 app.use(express.json())
-
+ 
 
 
 //routes
