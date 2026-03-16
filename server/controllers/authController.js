@@ -229,3 +229,23 @@ return res.status(500).json({ success: false, message: "Server error" })
 
   }
 }
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password")
+    return res.status(200).json({ success: true, data: users })
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server error" })
+  }
+}
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params
+    const user = await User.findByIdAndDelete(userId)
+    if (!user) return res.status(404).json({ success: false, message: "User not found" })
+    return res.status(200).json({ success: true, message: "User deleted" })
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server error" })
+  }
+}

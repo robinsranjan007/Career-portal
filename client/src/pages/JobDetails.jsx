@@ -3,6 +3,7 @@ import { getJobById } from '@/services/jobService'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
+import { MapPin, DollarSign, Briefcase, CheckCircle, Building2 } from 'lucide-react'
 
 function JobDetails() {
   const { jobsId } = useParams()
@@ -10,7 +11,7 @@ function JobDetails() {
   const [application, setApplication] = useState([])
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState(false)
-  const { user,loggedIn } = useSelector((data) => data.auth)
+  const { user, loggedIn } = useSelector((data) => data.auth)
 
   const handleApplyJob = async () => {
     try {
@@ -46,61 +47,66 @@ function JobDetails() {
   const alreadyApplied = application.some((app) => app.job._id == jobsId)
 
   if (loading) return (
-    <div className="min-h-screen bg-amber-50 flex items-center justify-center">
-      <div className="text-amber-800 font-serif text-xl animate-pulse">Loading position...</div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <p className="text-gray-400 animate-pulse">Loading position...</p>
     </div>
   )
 
   if (!jobDetails) return (
-    <div className="min-h-screen bg-amber-50 flex items-center justify-center">
-      <div className="text-amber-800 font-serif text-xl">Job not found.</div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <p className="text-gray-500">Job not found.</p>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-amber-50">
-      {/* Header Banner */}
-      <div className="bg-amber-900 border-b-4 border-amber-600 py-10 px-6">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-amber-300 font-serif text-sm uppercase tracking-widest mb-2">
-            Career Opportunity
-          </p>
-          <h1 className="text-white font-serif text-4xl font-bold mb-1">
-            {jobDetails?.jobPosition}
-          </h1>
-          <p className="text-amber-300 font-serif text-lg">
-            {jobDetails?.company?.companyName} &mdash; {jobDetails?.company?.companyLocation}
-          </p>
+    <div className="min-h-screen bg-gray-50">
+
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 py-10 px-6">
+        <div className="max-w-5xl mx-auto flex items-start gap-5">
+          {jobDetails?.company?.companyLogo ? (
+            <img src={jobDetails.company.companyLogo} alt="logo"
+              className="w-16 h-16 rounded-2xl object-contain border border-gray-100 shadow-sm flex-shrink-0" />
+          ) : (
+            <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center flex-shrink-0">
+              <Building2 size={28} className="text-teal-400" />
+            </div>
+          )}
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">{jobDetails?.jobPosition}</h1>
+              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                jobDetails?.jobstatus === 'open' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'
+              }`}>
+                {jobDetails?.jobstatus}
+              </span>
+            </div>
+            <p className="text-teal-600 font-medium">{jobDetails?.company?.companyName}</p>
+            <p className="text-gray-400 text-sm mt-1 flex items-center gap-1">
+              <MapPin size={13} /> {jobDetails?.company?.companyLocation}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Body */}
+      <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
 
-        {/* Left — Main Details */}
+        {/* Left */}
         <div className="md:col-span-2 space-y-6">
 
           {/* Description */}
-          <div className="bg-white border-2 border-amber-200 rounded-md p-6">
-            <h2 className="font-serif text-amber-900 text-xl font-bold mb-3 border-b border-amber-200 pb-2">
-              About the Role
-            </h2>
-            <p className="text-amber-800 font-serif leading-relaxed">
-              {jobDetails?.jobDescription}
-            </p>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 className="font-semibold text-gray-900 text-lg mb-3">About the Role</h2>
+            <p className="text-gray-600 leading-relaxed text-sm">{jobDetails?.jobDescription}</p>
           </div>
 
           {/* Skills */}
-          <div className="bg-white border-2 border-amber-200 rounded-md p-6">
-            <h2 className="font-serif text-amber-900 text-xl font-bold mb-3 border-b border-amber-200 pb-2">
-              Required Skills
-            </h2>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h2 className="font-semibold text-gray-900 text-lg mb-3">Required Skills</h2>
             <div className="flex flex-wrap gap-2">
               {jobDetails?.jobSkills?.map((skill, i) => (
-                <span
-                  key={i}
-                  className="bg-amber-100 border border-amber-400 text-amber-900 font-serif text-sm px-3 py-1 rounded"
-                >
+                <span key={i} className="bg-gray-50 border border-gray-200 text-gray-600 text-sm px-3 py-1 rounded-xl">
                   {skill}
                 </span>
               ))}
@@ -109,45 +115,37 @@ function JobDetails() {
 
         </div>
 
-        {/* Right — Sidebar */}
+        {/* Right Sidebar */}
         <div className="space-y-4">
 
-          {/* Company Card */}
-          <div className="bg-white border-2 border-amber-200 rounded-md p-5">
-            {jobDetails?.company?.companyLogo && (
-              <img
-                src={jobDetails.company.companyLogo}
-                alt="Company Logo"
-                className="h-14 w-14 object-contain mb-3 border border-amber-200 rounded p-1"
-              />
-            )}
-            <h3 className="font-serif text-amber-900 font-bold text-lg">
-              {jobDetails?.company?.companyName}
-            </h3>
-            <p className="text-amber-700 font-serif text-sm mt-1">
-              📍 {jobDetails?.company?.companyLocation}
-            </p>
-          </div>
-
           {/* Job Meta */}
-          <div className="bg-white border-2 border-amber-200 rounded-md p-5 space-y-3">
-            <div>
-              <p className="text-amber-500 font-serif text-xs uppercase tracking-widest">Experience</p>
-              <p className="text-amber-900 font-serif font-semibold">{jobDetails?.jobExperience}</p>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center">
+                <DollarSign size={16} className="text-teal-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 font-medium">Salary</p>
+                <p className="text-gray-900 font-semibold text-sm">{jobDetails?.salary}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-amber-500 font-serif text-xs uppercase tracking-widest">Salary</p>
-              <p className="text-amber-900 font-serif font-semibold">{jobDetails?.salary}</p>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center">
+                <Briefcase size={16} className="text-teal-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 font-medium">Experience</p>
+                <p className="text-gray-900 font-semibold text-sm">{jobDetails?.jobExperience}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-amber-500 font-serif text-xs uppercase tracking-widest">Status</p>
-              <span className={`inline-block font-serif text-sm px-2 py-1 rounded border ${
-                jobDetails?.jobstatus === 'open'
-                  ? 'bg-green-50 border-green-400 text-green-800'
-                  : 'bg-red-50 border-red-400 text-red-800'
-              }`}>
-                {jobDetails?.jobstatus}
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center">
+                <MapPin size={16} className="text-teal-500" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 font-medium">Location</p>
+                <p className="text-gray-900 font-semibold text-sm">{jobDetails?.joblocation}</p>
+              </div>
             </div>
           </div>
 
@@ -156,30 +154,31 @@ function JobDetails() {
             <button
               onClick={handleApplyJob}
               disabled={alreadyApplied || applying}
-              className={`w-full font-serif text-base py-3 px-4 rounded-md border-2 transition-all duration-200 ${
+              className={`w-full font-semibold text-sm py-3 px-4 rounded-xl transition-all duration-200 ${
                 alreadyApplied
-                  ? 'bg-amber-100 border-amber-300 text-amber-500 cursor-not-allowed'
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : applying
-                  ? 'bg-amber-200 border-amber-400 text-amber-700 cursor-wait'
-                  : 'bg-amber-800 border-amber-900 text-amber-50 hover:bg-amber-700 cursor-pointer'
+                  ? 'bg-teal-100 text-teal-600 cursor-wait'
+                  : 'bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white shadow-lg shadow-teal-100'
               }`}
             >
-              {alreadyApplied ? '✓ Already Applied' : applying ? 'Submitting...' : 'Apply for this Position'}
+              {alreadyApplied
+                ? '✓ Already Applied'
+                : applying
+                ? 'Submitting...'
+                : 'Apply for this Position'}
             </button>
-            
           )}
-         {!loggedIn && (
-  <p className="font-serif text-amber-800 text-sm border border-amber-200 bg-white rounded-md p-3 text-center">
-    To apply, please{' '}
-    <Link className="text-amber-600 underline hover:text-amber-900" to='/login'>
-      login
-    </Link>{' '}
-    <Link to='/register'>
-    or register
-    
-    </Link>
-  </p>
-)}
+
+          {!loggedIn && (
+            <p className="text-gray-500 text-sm border border-gray-100 bg-white rounded-2xl p-4 text-center">
+              To apply, please{' '}
+              <Link className="text-teal-600 font-medium hover:underline" to='/login'>login</Link>
+              {' '}or{' '}
+              <Link className="text-teal-600 font-medium hover:underline" to='/register'>register</Link>
+            </p>
+          )}
+
         </div>
       </div>
     </div>

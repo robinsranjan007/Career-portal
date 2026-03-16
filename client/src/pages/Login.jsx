@@ -4,9 +4,10 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
+import { Briefcase } from 'lucide-react'
 
 function Login() {
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
@@ -21,85 +22,72 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4"
-      style={{ backgroundImage: "radial-gradient(#d4a96a22 1px, transparent 1px)", backgroundSize: "20px 20px" }}>
-
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-green-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
 
-        {/* Header */}
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-block border-4 border-double border-amber-800 px-6 py-2 mb-4">
-            <h1 className="text-3xl font-bold text-amber-900" style={{ fontFamily: 'Georgia, serif' }}>
-              CareerPortal
-            </h1>
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-400 to-green-500 mb-4 shadow-lg">
+            <Briefcase size={26} className="text-white" />
           </div>
-          <div className="flex items-center gap-2 justify-center">
-            <div className="h-px bg-amber-700 flex-1"></div>
-            <p className="text-amber-700 text-xs uppercase tracking-widest px-2">Welcome Back</p>
-            <div className="h-px bg-amber-700 flex-1"></div>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Career<span className="text-teal-500">Portal</span>
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">Welcome back — sign in to continue</p>
         </div>
 
         {/* Card */}
-        <div className="bg-amber-50 border-2 border-amber-800 p-8 shadow-[6px_6px_0px_#92400e]">
-
+        <div className="bg-white rounded-3xl shadow-xl shadow-teal-100 border border-gray-100 p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
-            <div>
-              <label className="block text-sm font-bold text-amber-900 mb-1.5 uppercase tracking-wide"
-                style={{ fontFamily: 'Georgia, serif' }}>
-                Email Address
-              </label>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-gray-700">Email Address</label>
               <input
                 type="email"
                 placeholder="you@example.com"
-                className="w-full bg-amber-100 border-2 border-amber-700 text-amber-900 placeholder-amber-400 px-4 py-2.5 text-sm focus:outline-none focus:border-amber-900 transition"
+                className="w-full border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition"
                 {...register('email', { required: "Email is required" })}
               />
-              {errors.email && <p className="text-red-700 text-xs mt-1">{errors.email.message}</p>}
+              {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-amber-900 mb-1.5 uppercase tracking-wide"
-                style={{ fontFamily: 'Georgia, serif' }}>
-                Password
-              </label>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-gray-700">Password</label>
               <input
                 type="password"
                 placeholder="••••••••"
-                className="w-full bg-amber-100 border-2 border-amber-700 text-amber-900 placeholder-amber-400 px-4 py-2.5 text-sm focus:outline-none focus:border-amber-900 transition"
+                className="w-full border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition"
                 {...register('password', { required: "Password is required" })}
               />
-              {errors.password && <p className="text-red-700 text-xs mt-1">{errors.password.message}</p>}
+              {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
             </div>
 
             <button
               type="submit"
-              className="w-full bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold py-3 text-sm uppercase tracking-widest transition shadow-[3px_3px_0px_#451a03] hover:shadow-[1px_1px_0px_#451a03] hover:translate-x-0.5 hover:translate-y-0.5"
-              style={{ fontFamily: 'Georgia, serif' }}
+              disabled={isSubmitting}
+              className="w-full bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white font-semibold py-3 rounded-xl text-sm shadow-lg shadow-teal-200 transition-all duration-200 disabled:opacity-50 mt-2"
             >
-              Sign In
+              {isSubmitting ? 'Signing in...' : 'Sign In →'}
             </button>
 
           </form>
 
           <div className="flex items-center gap-2 my-5">
-            <div className="h-px bg-amber-300 flex-1"></div>
-            <span className="text-amber-500 text-xs">✦</span>
-            <div className="h-px bg-amber-300 flex-1"></div>
+            <div className="h-px bg-gray-100 flex-1"></div>
+            <span className="text-gray-300 text-xs">or</span>
+            <div className="h-px bg-gray-100 flex-1"></div>
           </div>
 
-          <p className="text-center text-amber-700 text-sm" style={{ fontFamily: 'Georgia, serif' }}>
+          <p className="text-center text-gray-500 text-sm">
             New here?{' '}
-            <Link to="/register" className="text-amber-900 font-bold underline underline-offset-2 hover:text-amber-700">
+            <Link to="/register" className="text-teal-600 font-semibold hover:underline">
               Create an account
             </Link>
           </p>
-
         </div>
 
-        <p className="text-center text-amber-600 text-xs mt-4" style={{ fontFamily: 'Georgia, serif' }}>
-          Est. 2024 · CareerPortal · All Rights Reserved
+        <p className="text-center text-gray-300 text-xs mt-6">
+          © 2024 CareerPortal · All Rights Reserved
         </p>
 
       </div>

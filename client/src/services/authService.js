@@ -30,3 +30,23 @@ export const logout= async(data)=>{
 
 }
 }
+
+export const getAllUsers = async()=>{
+    try {
+        const res= await Api.get('auth/users')
+        return res.data
+    } catch (error) {
+        throw error.response?.data?.message || error.message || "Something went wrong"
+
+    }
+}
+
+export const deleteUsers= async(userId)=>{
+    try {
+        const res= await Api.delete(`auth/${userId}`)
+        return res.data
+    } catch (error) {
+        throw error.response?.data?.message || error.message || "Something went wrong"
+
+    }
+}

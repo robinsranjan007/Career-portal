@@ -66,7 +66,7 @@ export const getAllJob = async (req, res) => {
   try {
     const jobs = await Job.find().populate(
       "company",
-      "compacompanyName companyLogo companyLocationnyName",
+      "companyName companyLogo companyLocationnyName",
     );
     if (jobs.length === 0) {
       return res.status(400).json({
@@ -163,6 +163,7 @@ export const updateJob = async (req, res) => {
     });
   }
 };
+
 
 export const deleteJob = async (req, res) => {
   try {

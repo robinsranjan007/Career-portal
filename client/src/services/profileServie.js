@@ -22,3 +22,22 @@ export const deleteProfile = async (profileId) => {
     const res = await Api.delete(`/profile/${profileId}`)
     return res.data
 }
+
+export const getMyProfile = async () => {
+  const res = await Api.get('/profile/me')
+  return res.data
+}
+
+export const uploadProfilePhoto = async (profileId, formData) => {
+  const res = await Api.put(`/profile/${profileId}/photo`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return res.data
+}
+
+export const uploadResume = async (profileId, formData) => {
+  const res = await Api.put(`/profile/${profileId}/resume`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+  return res.data
+}

@@ -37,9 +37,13 @@ export const applyJob = async (req, res) => {
 
 export const getMyApplication = async (req, res) => {
   try {
-    const application = await Application.find({ user: req.user.id }).populate(
-      "job",
-    );
+  const application = await Application.find({ user: req.user.id }).populate({
+  path: "job",
+  populate: {
+    path: "company",
+    select: "companyName companyLogo"
+  }
+});
 
     if (!application) {
       return res.status(400).json({

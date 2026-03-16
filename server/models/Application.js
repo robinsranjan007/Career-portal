@@ -4,9 +4,13 @@ const applicationSchema= mongoose.Schema({
         user:{ type: mongoose.Schema.Types.ObjectId, ref: 'User' },
        
         job:{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' },
-        status:{type:String,enum:['active','selected','rejected']},
+    status: {
+  type: String,
+  enum: ['pending', 'accepted', 'rejected'],
+  default: 'pending'
+}
 
-})
+}, { timestamps: true })
 
 const Application = mongoose.model('Application',applicationSchema)
 

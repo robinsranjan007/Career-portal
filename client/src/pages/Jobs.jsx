@@ -1,14 +1,15 @@
 import { setJobs } from "@/redux/slices/jobSlice";
 import { getAllJob } from "@/services/jobService";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Briefcase, Clock, ChevronRight } from "lucide-react";
+import { MapPin, Briefcase, Clock, ChevronRight, Search } from "lucide-react";
 
 function Jobs() {
   const dispatch = useDispatch();
   const { jobs } = useSelector((state) => state.job);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchGetAllJobs = async () => {
@@ -17,112 +18,123 @@ function Jobs() {
         dispatch(setJobs(res.data));
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchGetAllJobs();
   }, []);
 
+  if (loading) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <p className="text-gray-400 animate-pulse">Loading jobs...</p>
+    </div>
+  )
+
   return (
-    <div className="min-h-screen bg-amber-50"
-      style={{ backgroundImage: "radial-gradient(#d4a96a22 1px, transparent 1px)", backgroundSize: "20px 20px" }}>
+    <div className="min-h-screen bg-gray-50">
 
       {/* Header */}
-      <div className="border-b-2 border-amber-800 bg-amber-50 py-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-px bg-amber-700 w-8"></div>
-            <span className="text-amber-700 text-xs uppercase tracking-widest">Opportunities</span>
-            <div className="h-px bg-amber-700 w-8"></div>
-          </div>
-          <h1 className="text-3xl font-bold text-amber-900" style={{ fontFamily: 'Georgia, serif' }}>
-            Browse All Jobs
-          </h1>
+      <div className="bg-white border-b border-gray-100 py-8 px-6">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-teal-500 text-sm font-medium mb-1">Opportunities</p>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Browse All Jobs</h1>
+          <p className="text-gray-500 text-sm mt-1">{jobs.length} positions available</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 flex gap-6">
+      <div className="max-w-6xl mx-auto px-6 py-8 flex gap-6">
 
         {/* Sidebar */}
-        <div className="w-64 shrink-0">
-          <div className="border-2 border-amber-800 bg-amber-50 p-5 shadow-[4px_4px_0px_#92400e]">
-            <h3 className="font-bold text-amber-900 uppercase tracking-wide text-sm mb-4"
-              style={{ fontFamily: 'Georgia, serif' }}>
-              Filter & Sort
-            </h3>
-            <div className="h-px bg-amber-200 mb-4"></div>
-            <p className="text-amber-600 text-xs italic">Filters coming soon...</p>
+        <div className="w-60 shrink-0">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <h3 className="font-semibold text-gray-900 text-sm mb-4">Filter & Sort</h3>
+            <div className="h-px bg-gray-100 mb-4"></div>
+            <p className="text-gray-400 text-xs">Filters coming soon...</p>
           </div>
         </div>
 
-        {/* Jobs Grid */}
+        {/* Jobs List */}
         <div className="flex-1">
           {jobs.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-amber-700 text-lg" style={{ fontFamily: 'Georgia, serif' }}>No positions available</p>
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <Briefcase size={40} className="text-gray-200 mb-3" />
+              <p className="text-gray-400 font-medium">No positions available</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {jobs.map((job) => (
-                <div key={job._id}
-                  className="border-2 border-amber-800 bg-amber-50 p-6 shadow-[4px_4px_0px_#92400e] hover:shadow-[2px_2px_0px_#92400e] hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer"
-                  onClick={() => navigate(`/jobs/${job._id}`)}>
+                <div
+                  key={job._id}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-teal-200 transition-all cursor-pointer p-6"
+                  onClick={() => navigate(`/jobs/${job._id}`)}
+                >
+                  <div className="flex items-start justify-between gap-4">
 
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs uppercase tracking-widest text-amber-600 border border-amber-400 px-2 py-0.5"
-                          style={{ fontFamily: 'Georgia, serif' }}>
-                          {job?.jobstatus}
-                        </span>
-                      </div>
-                      <h2 className="text-xl font-bold text-amber-900 mb-1"
-                        style={{ fontFamily: 'Georgia, serif' }}>
-                        {job?.jobPosition}
-                      </h2>
-                      <p className="text-amber-700 text-sm font-medium mb-3"
-                        style={{ fontFamily: 'Georgia, serif' }}>
-                        {job?.company?.companyName}
-                      </p>
+                    {/* Left */}
+                    <div className="flex items-start gap-4 flex-1 min-w-0">
+                      {job?.company?.companyLogo ? (
+                        <img src={job.company.companyLogo} alt="logo"
+                          className="w-12 h-12 rounded-xl object-contain border border-gray-100 flex-shrink-0" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0">
+                          <Briefcase size={20} className="text-teal-400" />
+                        </div>
+                      )}
 
-                      <p className="text-amber-800 text-sm leading-relaxed mb-4 line-clamp-2">
-                        {job?.jobDescription}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {job?.jobSkills?.map((skill) => (
-                          <span key={skill}
-                            className="text-xs bg-amber-100 border border-amber-400 text-amber-800 px-2 py-0.5"
-                            style={{ fontFamily: 'Georgia, serif' }}>
-                            {skill}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h2 className="text-lg font-bold text-gray-900 truncate">{job?.jobPosition}</h2>
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                            job?.jobstatus === 'open'
+                              ? 'bg-green-50 text-green-600'
+                              : 'bg-red-50 text-red-500'
+                          }`}>
+                            {job?.jobstatus}
                           </span>
-                        ))}
-                      </div>
+                        </div>
 
-                      <div className="flex items-center gap-4 text-xs text-amber-600">
-                        <span className="flex items-center gap-1">
-                          <MapPin size={12} />
-                          {job?.joblocation}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Briefcase size={12} />
-                          {job?.jobExperience}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} />
-                          ${job?.salary}/yr
-                        </span>
+                        <p className="text-teal-600 text-sm font-medium mb-2">{job?.company?.companyName}</p>
+
+                        <p className="text-gray-500 text-sm leading-relaxed mb-3 line-clamp-2">
+                          {job?.jobDescription}
+                        </p>
+
+                        {/* Skills */}
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {job?.jobSkills?.slice(0, 4).map((skill) => (
+                            <span key={skill}
+                              className="text-xs bg-gray-50 border border-gray-200 text-gray-600 px-2 py-0.5 rounded-lg">
+                              {skill}
+                            </span>
+                          ))}
+                          {job?.jobSkills?.length > 4 && (
+                            <span className="text-xs text-gray-400">+{job.jobSkills.length - 4} more</span>
+                          )}
+                        </div>
+
+                        {/* Meta */}
+                        <div className="flex items-center gap-4 text-xs text-gray-400">
+                          <span className="flex items-center gap-1">
+                            <MapPin size={11} /> {job?.joblocation}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Briefcase size={11} /> {job?.jobExperience}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock size={11} /> {job?.salary}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <ChevronRight size={20} className="text-amber-600 shrink-0 ml-4 mt-1" />
+                    <ChevronRight size={18} className="text-gray-300 flex-shrink-0 mt-1" />
                   </div>
-
                 </div>
               ))}
             </div>
           )}
         </div>
-
       </div>
     </div>
   )
