@@ -48,7 +48,7 @@ export const getProfileById=async(req,res)=>{
 try {
     const {profileId} = req.params
 
-    const profileDetails=await Profile.findById(profileId)
+ const profileDetails = await Profile.findOne({ user: profileId })
 
     if(!profileDetails)
     {

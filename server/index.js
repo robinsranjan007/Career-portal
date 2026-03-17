@@ -13,6 +13,8 @@ import './models/Company.js'
 import './models/Jobs.js'
 import './models/Application.js'
 import './models/Profile.js'
+import rateLimit from 'express-rate-limit'
+import statsRoutes from './routes/statsRoutes.js'
 const app= express()
 
 dotenv.config()
@@ -23,6 +25,14 @@ app.use(cors({
     credentials:true
 }))
 
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: { success: false, message: 'Too many requests, please try again later' }
+})
+
+app.use(limiter)
 
 
 
@@ -40,6 +50,7 @@ app.use('/api/v1/job',jobRoutes)
 app.use('/api/v1/company',compnayRoutes)
 app.use('/api/v1/application',applicationRoutes)
 app.use('/api/v1/profile',profileRoutes)
+app.use('/api/v1/stats', statsRoutes)
 
 
 mongoDB()

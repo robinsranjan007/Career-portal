@@ -19,7 +19,7 @@ export const applyJob = async (req, res) => {
     const application = await Application.create({
       user: req.user.id,
       job: jobId,
-      status: "active",
+      status: "pending",
     });
 
     return res.status(200).json({
