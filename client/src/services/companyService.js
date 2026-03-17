@@ -22,3 +22,8 @@ export const deleteCompany = async (companyId) => {
     const res = await Api.delete(`/company/${companyId}`)
     return res.data
 }
+
+export const getMyCompany = async () => {
+  const res = await Api.get('/company/my-company')
+  return res.data
+}

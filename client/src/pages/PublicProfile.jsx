@@ -2,6 +2,8 @@ import { getProfileById } from '@/services/profileServie'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { BookOpen, Briefcase, MapPin } from 'lucide-react'
+import toast from 'react-hot-toast'
+import Spinner from '@/components/Spinner'
 
 function PublicProfile() {
 
@@ -16,6 +18,7 @@ function PublicProfile() {
         setProfile(res.data)
       } catch (error) {
         console.log(error)
+        toast.error(error?.response?.data?.message || 'Something went wrong')
       } finally {
         setLoading(false)
       }
@@ -23,11 +26,7 @@ function PublicProfile() {
     getUserProfiles()
   }, [])
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-400 animate-pulse">Loading profile...</p>
-    </div>
-  )
+ if (loading) return <Spinner />
 
   if (!profile) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -111,7 +110,7 @@ function PublicProfile() {
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:col-span-2">
               <h2 className="font-semibold text-gray-900 mb-4">Resume</h2>
               
-                href={profile.resume}
+               <a href={profile.resume}
                 target="_blank"
                 className="inline-block bg-gradient-to-r from-teal-500 to-green-500 text-white text-sm font-semibold px-5 py-2 rounded-xl shadow-md shadow-teal-100 hover:from-teal-400 hover:to-green-400 transition"
               >

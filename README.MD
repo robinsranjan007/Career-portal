@@ -17,20 +17,20 @@ Each project is intentionally chosen to cover specific industry-relevant topics.
 | # | Project | Status | Focus |
 |---|---------|--------|-------|
 | 1 | MERN Blog | ✅ Completed | Auth, Redux, REST APIs, JWT |
-| 2 | **Job Portal** | 🔄 In Progress | Search, Pagination, File Uploads, Refresh Tokens |
-| 3 | E-Commerce | ⬜ Upcoming | React Query, Stripe, Socket.io |
-| 4 | LMS | ⬜ Upcoming | Video Uploads, Subscriptions, Testing |
-| 5 | SaaS | ⬜ Upcoming | Docker, Kafka, CI/CD, OAuth2 |
+| 2 | **Job Portal** | ✅ Completed | Search, Pagination, File Uploads, Refresh Tokens |
+| 3 | E-Commerce | ⬜ Upcoming | Cart, Stripe, Orders, Modals |
+| 4 | LMS | ⬜ Upcoming | Video Uploads, Subscriptions, Progress Tracking |
+| 5 | Doctor Appointment | ⬜ Upcoming | Scheduling, Notifications |
 
 ---
 
 ## 🆕 New Topics in This Project
 
-**Backend:** Refresh tokens, Multer, Cloudinary, Pagination, Search + Filter + Sort, Rate limiting, Zod validation
+**Backend:** Refresh tokens, Multer, Cloudinary, Pagination, Search + Filter + Sort, Rate limiting, Owner checks, Stats endpoint
 
-**Frontend:** React Hook Form, Custom hooks, Redux Thunks, Debouncing, Pagination UI, Popup Modals, Toast notifications, Lazy loading
+**Frontend:** React Hook Form, Redux Thunks, Pagination UI, Confirm Delete Modal, Toast notifications (react-hot-toast), Spinner component, Role-based routing
 
-**General:** Railway + Vercel deployment, System design concepts
+**General:** Railway + Vercel deployment, Cloudinary file management, MERN best practices
 
 ---
 
@@ -38,17 +38,32 @@ Each project is intentionally chosen to cover specific industry-relevant topics.
 
 | Role | Permissions |
 |------|------------|
-| **Seeker** | Browse jobs, apply, manage profile, track applications |
-| **Employer** | Post jobs, manage listings, view applicants, update status |
+| **Seeker** | Browse jobs, apply (resume required), manage profile, upload photo + resume, track applications |
+| **Employer** | Create company, post jobs, manage listings, view applicants, update application status, view seeker profiles |
 | **Admin** | Manage all users and jobs |
 
 ---
 
 ## 🔧 Tech Stack
 
-**Backend:** Node.js, Express, MongoDB, Mongoose, JWT, bcryptjs, Multer, Cloudinary
+**Backend:** Node.js, Express, MongoDB, Mongoose, JWT, bcryptjs, Multer, Cloudinary, express-rate-limit
 
-**Frontend:** React (Vite), Redux Toolkit, React Router, Axios, React Hook Form, Tailwind CSS, shadcn/ui
+**Frontend:** React (Vite), Redux Toolkit, React Router, Axios, React Hook Form, Tailwind CSS, shadcn/ui, react-hot-toast, lucide-react
+
+---
+
+## ✨ Key Features
+
+- 🔐 JWT Auth with refresh token rotation
+- 👤 Role-based access control (Seeker / Employer / Admin)
+- 📄 Resume upload + PDF delivery via Cloudinary
+- 🖼️ Profile photo upload via Cloudinary
+- 🔍 Search + Filter + Sort + Pagination on jobs
+- 🏢 Company management (create/edit) per employer
+- 📋 Application tracking with status updates
+- 🔒 Owner checks on all update/delete operations
+- ⚡ Rate limiting on all API routes
+- 🎨 Modern SaaS UI with teal/green design system
 
 ---
 
@@ -61,12 +76,14 @@ Each project is intentionally chosen to cover specific industry-relevant topics.
 | POST | `/api/v1/auth/login` | Public |
 | POST | `/api/v1/auth/logout` | Private |
 | POST | `/api/v1/auth/refresh` | Private |
+| GET | `/api/v1/auth/me` | Private |
 
 ### Jobs
 | Method | Route | Access |
 |--------|-------|--------|
 | GET | `/api/v1/job` | Public |
 | GET | `/api/v1/job/:jobId` | Public |
+| GET | `/api/v1/job/my-jobs` | Employer |
 | POST | `/api/v1/job` | Employer |
 | PUT | `/api/v1/job/:jobId` | Employer |
 | DELETE | `/api/v1/job/:jobId` | Employer |
@@ -84,6 +101,7 @@ Each project is intentionally chosen to cover specific industry-relevant topics.
 | Method | Route | Access |
 |--------|-------|--------|
 | GET | `/api/v1/company` | Public |
+| GET | `/api/v1/company/my-company` | Employer |
 | GET | `/api/v1/company/:companyId` | Public |
 | POST | `/api/v1/company` | Employer |
 | PUT | `/api/v1/company/:companyId` | Employer |
@@ -92,10 +110,18 @@ Each project is intentionally chosen to cover specific industry-relevant topics.
 ### Profile
 | Method | Route | Access |
 |--------|-------|--------|
+| GET | `/api/v1/profile/me` | Seeker |
 | GET | `/api/v1/profile/:profileId` | Private |
 | POST | `/api/v1/profile` | Seeker |
 | PUT | `/api/v1/profile/:profileId` | Seeker |
+| PUT | `/api/v1/profile/:profileId/photo` | Seeker |
+| PUT | `/api/v1/profile/:profileId/resume` | Seeker |
 | DELETE | `/api/v1/profile/:profileId` | Seeker |
+
+### Stats
+| Method | Route | Access |
+|--------|-------|--------|
+| GET | `/api/v1/stats` | Public |
 
 ---
 
@@ -121,6 +147,14 @@ MONGO_URI=
 SECRET_ACCESSTOKEN_KEY=
 SECRET_REFRESHTOKEN_KEY=
 NODE_ENV=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+\```
+
+### client/.env.example
+\```
+VITE_API_URL=
 \```
 
 ---

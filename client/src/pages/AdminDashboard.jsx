@@ -2,11 +2,16 @@ import { deleteUsers, getAllUsers } from "@/services/authService";
 import { deleteJob, getAllJob } from "@/services/jobService";
 import React, { useEffect, useState } from "react";
 import { Trash2, Users, Briefcase } from "lucide-react";
+import toast from "react-hot-toast";
+import Spinner from "@/components/Spinner";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 
 function AdminDashboard() {
   const [allusers, setAllusers] = useState([]);
   const [alljobs, setAllJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userDeleteModal, setUserDeleteModal] = useState({ open: false, id: null })
+  const [jobDeleteModal, setJobDeleteModal] = useState({ open: false, id: null })
 
   useEffect(() => {
     const getDashboardData = async () => {
@@ -15,7 +20,7 @@ function AdminDashboard() {
         setAllJobs(jobRes.data);
         setAllusers(userRes.data);
       } catch (error) {
-        console.log(error);
+        toast.error(error?.response?.data?.message || 'Something went wrong')
       } finally {
         setLoading(false);
       }
@@ -27,8 +32,9 @@ function AdminDashboard() {
     try {
       await deleteUsers(id);
       setAllusers((prev) => prev.filter((val) => val._id !== id));
+      toast.success('User deleted')
     } catch (error) {
-      console.log(error);
+      toast.error(error?.response?.data?.message || 'Something went wrong')
     }
   };
 
@@ -36,8 +42,9 @@ function AdminDashboard() {
     try {
       await deleteJob(id);
       setAllJobs((prev) => prev.filter((job) => job._id !== id));
+      toast.success('Job deleted')
     } catch (error) {
-      console.log(error);
+      toast.error(error?.response?.data?.message || 'Something went wrong')
     }
   };
 
@@ -47,23 +54,17 @@ function AdminDashboard() {
     return 'bg-teal-50 text-teal-600'
   }
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-400 animate-pulse">Loading dashboard...</p>
-    </div>
-  )
+  if (loading) return <Spinner />
 
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10">
       <div className="max-w-7xl mx-auto">
 
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Admin Dashboard</h1>
           <p className="text-gray-500 mt-1 text-sm">Manage all users and job listings</p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
             <div className="w-11 h-11 rounded-xl bg-teal-50 flex items-center justify-center">
@@ -87,22 +88,17 @@ function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          {/* Users Table */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="font-semibold text-gray-900">All Users</h2>
-              <span className="text-xs font-medium bg-teal-50 text-teal-600 px-3 py-1 rounded-full">
-                {allusers.length} total
-              </span>
+              <span className="text-xs font-medium bg-teal-50 text-teal-600 px-3 py-1 rounded-full">{allusers.length} total</span>
             </div>
             <div className="divide-y divide-gray-50">
               {allusers.map((user) => (
                 <div key={user._id} className="px-6 py-4 hover:bg-gray-50 transition flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-green-500 flex items-center justify-center flex-shrink-0">
-                      <span className="text-white text-sm font-bold">
-                        {user.name?.charAt(0).toUpperCase()}
-                      </span>
+                      <span className="text-white text-sm font-bold">{user.name?.charAt(0).toUpperCase()}</span>
                     </div>
                     <div className="min-w-0">
                       <p className="font-medium text-gray-900 text-sm truncate">{user.name}</p>
@@ -110,11 +106,9 @@ function AdminDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${roleColor(user.role)}`}>
-                      {user.role}
-                    </span>
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${roleColor(user.role)}`}>{user.role}</span>
                     <button
-                      onClick={() => handleDelete(user._id)}
+                      onClick={() => setUserDeleteModal({ open: true, id: user._id })}
                       className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition"
                     >
                       <Trash2 size={14} />
@@ -125,21 +119,17 @@ function AdminDashboard() {
             </div>
           </div>
 
-          {/* Jobs Table */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="font-semibold text-gray-900">All Jobs</h2>
-              <span className="text-xs font-medium bg-green-50 text-green-600 px-3 py-1 rounded-full">
-                {alljobs.length} total
-              </span>
+              <span className="text-xs font-medium bg-green-50 text-green-600 px-3 py-1 rounded-full">{alljobs.length} total</span>
             </div>
             <div className="divide-y divide-gray-50">
               {alljobs.map((job) => (
                 <div key={job._id} className="px-6 py-4 hover:bg-gray-50 transition flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     {job?.company?.companyLogo ? (
-                      <img src={job.company.companyLogo} alt="logo"
-                        className="w-9 h-9 rounded-xl object-contain border border-gray-100 flex-shrink-0" />
+                      <img src={job.company.companyLogo} alt="logo" className="w-9 h-9 rounded-xl object-contain border border-gray-100 flex-shrink-0" />
                     ) : (
                       <div className="w-9 h-9 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0">
                         <Briefcase size={15} className="text-teal-400" />
@@ -151,13 +141,9 @@ function AdminDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                      job.jobstatus === 'open' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'
-                    }`}>
-                      {job.jobstatus}
-                    </span>
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${job.jobstatus === 'open' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'}`}>{job.jobstatus}</span>
                     <button
-                      onClick={() => handleDeleteJob(job._id)}
+                      onClick={() => setJobDeleteModal({ open: true, id: job._id })}
                       className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition"
                     >
                       <Trash2 size={14} />
@@ -170,6 +156,27 @@ function AdminDashboard() {
 
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={userDeleteModal.open}
+        onClose={() => setUserDeleteModal({ open: false, id: null })}
+        onConfirm={() => {
+          handleDelete(userDeleteModal.id)
+          setUserDeleteModal({ open: false, id: null })
+        }}
+        message="This user will be permanently deleted."
+      />
+
+      <ConfirmDeleteModal
+        isOpen={jobDeleteModal.open}
+        onClose={() => setJobDeleteModal({ open: false, id: null })}
+        onConfirm={() => {
+          handleDeleteJob(jobDeleteModal.id)
+          setJobDeleteModal({ open: false, id: null })
+        }}
+        message="This job will be permanently deleted."
+      />
+
     </div>
   );
 }

@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { deleteApplicaiton, getJobApplication, updateApplication } from '@/services/applicationService'
 import { Trash2, Users, Mail, Calendar } from 'lucide-react'
+import toast from 'react-hot-toast'
+import Spinner from '@/components/Spinner'
+import ConfirmDeleteModal from '@/components/ConfirmDeleteModal'
 
 function Applicants() {
   const { jobId } = useParams()
+  const navigate = useNavigate()
   const [data, setFormdata] = useState([])
   const [loading, setLoading] = useState(true)
-  const [length,setLength] = useState(0)
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: null })
 
   useEffect(() => {
     const getApplications = async () => {
       try {
         const res = await getJobApplication(jobId)
         setFormdata(res.data)
-        setLength(res.data.length)
       } catch (error) {
-        console.log(error)
+        toast.error(error?.response?.data?.message || 'Something went wrong')
       } finally {
         setLoading(false)
       }
@@ -26,12 +29,13 @@ function Applicants() {
 
   const handleStatusUpdate = async (applicationId, newStatus) => {
     try {
-      await updateApplication( { status: newStatus },applicationId)
+      await updateApplication({ status: newStatus }, applicationId)
       setFormdata(prev => prev.map(app =>
         app._id === applicationId ? { ...app, status: newStatus } : app
       ))
+      toast.success('Status updated')
     } catch (error) {
-      console.log(error)
+      toast.error(error?.response?.data?.message || 'Something went wrong')
     }
   }
 
@@ -39,8 +43,9 @@ function Applicants() {
     try {
       await deleteApplicaiton(applicationId)
       setFormdata(prev => prev.filter(app => app._id !== applicationId))
+      toast.success('Applicant removed')
     } catch (error) {
-      console.log(error)
+      toast.error(error?.response?.data?.message || 'Something went wrong')
     }
   }
 
@@ -50,23 +55,17 @@ function Applicants() {
     return 'bg-yellow-50 text-yellow-600'
   }
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-400 animate-pulse">Loading applicants...</p>
-    </div>
-  )
+  if (loading) return <Spinner />
 
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10">
       <div className="max-w-5xl mx-auto">
 
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Applicants</h1>
           <p className="text-gray-500 mt-1 text-sm">Review and manage candidates for this position</p>
         </div>
 
-        {/* Table Card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">All Applicants</h2>
@@ -86,7 +85,6 @@ function Applicants() {
               {data.map((app) => (
                 <div key={app._id} className="px-6 py-5 hover:bg-gray-50 transition flex items-center justify-between gap-4">
 
-                  {/* Left — Candidate Info */}
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-green-500 flex items-center justify-center flex-shrink-0">
                       <span className="text-white font-bold text-sm">
@@ -100,19 +98,24 @@ function Applicants() {
                           <Mail size={11} /> {app?.user?.email}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-gray-400">
-                          <Calendar size={11} /> {new Date(app?.createdAt).toLocaleDateString()}
+                          <Calendar size={11} /> {new Date(app?.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Status Badge */}
                   <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColor(app?.status)}`}>
                     {app?.status}
                   </span>
 
-                  {/* Right — Actions */}
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => navigate(`/profile/${app?.user?._id}`)}
+                      className="text-xs font-medium text-teal-600 bg-teal-50 hover:bg-teal-100 px-3 py-2 rounded-xl transition"
+                    >
+                      View Profile
+                    </button>
+
                     <select
                       value={app.status}
                       onChange={(e) => handleStatusUpdate(app._id, e.target.value)}
@@ -124,7 +127,7 @@ function Applicants() {
                     </select>
 
                     <button
-                      onClick={() => handleDelete(app._id)}
+                      onClick={() => setDeleteModal({ open: true, id: app._id })}
                       className="flex items-center gap-1.5 text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-xl transition"
                     >
                       <Trash2 size={13} /> Delete
@@ -137,6 +140,17 @@ function Applicants() {
           )}
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={deleteModal.open}
+        onClose={() => setDeleteModal({ open: false, id: null })}
+        onConfirm={() => {
+          handleDelete(deleteModal.id)
+          setDeleteModal({ open: false, id: null })
+        }}
+        message="This applicant will be permanently removed."
+      />
+
     </div>
   )
 }

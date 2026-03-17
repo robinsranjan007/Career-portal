@@ -5,21 +5,23 @@ import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
 import { Briefcase } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 function Login() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const onSubmit = async (data) => {
-    try {
-      const res = await login(data)
-      dispatch(setUser(res.data))
-      navigate('/')
-    } catch (error) {
-      console.log(error)
-    }
+ const onSubmit = async (data) => {
+  try {
+    const res = await login(data)
+    dispatch(setUser(res.data))
+    toast.success('Welcome back!')
+    navigate('/')
+  } catch (error) {
+    toast.error(error.response?.data?.message || 'Login failed')
   }
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-green-50 flex items-center justify-center p-4">

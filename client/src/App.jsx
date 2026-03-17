@@ -19,6 +19,7 @@ import ProtectedRoutes from './components/ProtectedRoutes'
 import { fetchMe } from './redux/slices/authSlice'
 import { useDispatch } from 'react-redux'
 import { useEffect } from 'react'
+import PublicProfile from './pages/PublicProfile'
 
  
  function App() {
@@ -50,6 +51,7 @@ const dispatch= useDispatch()
         <Route path='/employer/edit-job/:jobId' element={<ProtectedRoutes  allowedRoles={['employer']}><EditJob/></ProtectedRoutes>} />
         <Route path='/employer/applicants/:jobId' element={<ProtectedRoutes  allowedRoles={['employer']}><Applicants/></ProtectedRoutes>} />
         <Route path='/employer/company' element={<ProtectedRoutes  allowedRoles={['employer']}><Company/></ProtectedRoutes>} />
+        <Route path='/profile/:userId' element={<ProtectedRoutes allowedRoles={['employer', 'admin']}><PublicProfile/></ProtectedRoutes>} />
         {/* admin */}
         <Route path='/admin/dashboard' element={<ProtectedRoutes  allowedRoles={['admin']}><AdminDashboard/></ProtectedRoutes>} />
 

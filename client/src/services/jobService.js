@@ -5,9 +5,9 @@ export const createJob = async (data) => {
     const res = await Api.post('/job', data)
     return res.data
 }
-export const getAllJob = async () => {
-    const res = await Api.get('/job')
-    return res.data
+export const getAllJob = async (params = {}) => {
+  const res = await Api.get('/job', { params })
+  return res.data
 }
 export const getJobById = async (jobId) => {
     const res = await Api.get(`/job/${jobId}`)

@@ -1,19 +1,21 @@
 import { useForm } from "react-hook-form";
 import { register as registerUser } from "@/services/authService";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function Register() {
   const { register, handleSubmit, formState: { errors } } = useForm()
   const navigate = useNavigate()
 
-  const handleFormSubmit = async (data) => {
-    try {
-      await registerUser(data);
-      navigate('/login')
-    } catch (error) {
-      console.log(error);
-    }
-  };
+ const handleFormSubmit = async (data) => {
+  try {
+    await registerUser(data);
+    toast.success('Account created! Please login.')
+    navigate('/login')
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Something went wrong')
+  }
+};
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4"

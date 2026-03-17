@@ -4,6 +4,9 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
 import { MapPin, DollarSign, Briefcase, CheckCircle, Building2 } from 'lucide-react'
+import { getMyProfile } from '@/services/profileServie'
+import toast from 'react-hot-toast'
+import Spinner from '@/components/Spinner'
 
 function JobDetails() {
   const { jobsId } = useParams()
@@ -12,31 +15,39 @@ function JobDetails() {
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState(false)
   const { user, loggedIn } = useSelector((data) => data.auth)
+  const [hasResume,setHasResume]=useState(false)
 
-  const handleApplyJob = async () => {
-    try {
-      setApplying(true)
-      await applyJob(jobsId)
-      setApplication(prev => [...prev, { job: { _id: jobsId } }])
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setApplying(false)
-    }
+const handleApplyJob = async () => {
+  try {
+    setApplying(true)
+    await applyJob(jobsId)
+    setApplication(prev => [...prev, { job: { _id: jobsId } }])
+    toast.success('Applied successfully!')
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Something went wrong')
+  } finally {
+    setApplying(false)
   }
+}
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const [jobRes, applicationRes] = await Promise.all([
-          getJobById(jobsId),
-          user?.role === "seeker" ? getMyApplication() : Promise.resolve({ data: [] })
-        ])
+      const [jobRes, myProfile, applicationRes] = await Promise.all([
+  getJobById(jobsId),
+  user?.role === "seeker" ? getMyProfile().catch(() => ({ data: null })) : Promise.resolve({ data: null }),
+  user?.role === "seeker" ? getMyApplication() : Promise.resolve({ data: [] })
+])
         setJobDetails(jobRes.data)
         setApplication(applicationRes.data)
+      if (myProfile.data?.resume) {
+  setHasResume(true)
+}
+
       } catch (error) {
         console.log(error)
+        toast.error(error?.response?.data?.message || 'Something went wrong')
       } finally {
         setLoading(false)
       }
@@ -46,11 +57,7 @@ function JobDetails() {
 
   const alreadyApplied = application.some((app) => app.job._id == jobsId)
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-400 animate-pulse">Loading position...</p>
-    </div>
-  )
+if (loading) return <Spinner />
 
   if (!jobDetails) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -151,24 +158,35 @@ function JobDetails() {
 
           {/* Apply Button */}
           {user?.role === "seeker" && (
-            <button
-              onClick={handleApplyJob}
-              disabled={alreadyApplied || applying}
-              className={`w-full font-semibold text-sm py-3 px-4 rounded-xl transition-all duration-200 ${
-                alreadyApplied
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : applying
-                  ? 'bg-teal-100 text-teal-600 cursor-wait'
-                  : 'bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white shadow-lg shadow-teal-100'
-              }`}
-            >
-              {alreadyApplied
-                ? '✓ Already Applied'
-                : applying
-                ? 'Submitting...'
-                : 'Apply for this Position'}
-            </button>
+          <button
+  onClick={handleApplyJob}
+  disabled={alreadyApplied || applying || !hasResume}
+  className={`w-full font-semibold text-sm py-3 px-4 rounded-xl transition-all duration-200 ${
+    alreadyApplied
+      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+      : !hasResume
+      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+      : applying
+      ? 'bg-teal-100 text-teal-600 cursor-wait'
+      : 'bg-gradient-to-r from-teal-500 to-green-500 hover:from-teal-400 hover:to-green-400 text-white shadow-lg shadow-teal-100'
+  }`}
+>
+  {alreadyApplied
+    ? '✓ Already Applied'
+    : !hasResume
+    ? '⚠ Upload resume to apply'
+    : applying
+    ? 'Submitting...'
+    : 'Apply for this Position'}
+</button>
+
           )}
+          {!hasResume && (
+  <Link to='/profile' className="text-teal-600 text-xs text-center block hover:underline">
+    Complete your profile to apply →
+  </Link>
+)}
+
 
           {!loggedIn && (
             <p className="text-gray-500 text-sm border border-gray-100 bg-white rounded-2xl p-4 text-center">

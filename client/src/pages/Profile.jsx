@@ -2,8 +2,10 @@ import { createProfile, getMyProfile, updateProfile } from "@/services/profileSe
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { BookOpen, Briefcase, MapPin, X } from "lucide-react";
+import Spinner from "@/components/Spinner";
  
 import { uploadProfilePhoto,uploadResume } from "@/services/profileServie";
+import toast from "react-hot-toast";
 
 function Profile() {
   const initialForm = {
@@ -27,23 +29,23 @@ function Profile() {
   const [createForm, setCreateForm] = useState(initialForm);
   const [loading, setLoading] = useState(true)
 
-
-  useEffect(() => {
-    const MyProfile = async () => {
-      try {
-        const res = await getMyProfile();
-        setData(res.data);
-      } catch (error) {
-        if (error.response?.status === 404) {
-          setShowForm(true);
-        }
-      } finally {
-        setLoading(false)
+useEffect(() => {
+  const MyProfile = async () => {
+    try {
+      const res = await getMyProfile();
+      setData(res.data);
+    } catch (error) {
+      if (error.response?.status === 404) {
+        setShowForm(true);  // toast nahi — bas form dikhao
+      } else {
+        toast.error(error?.response?.data?.message || 'Something went wrong')
       }
-    };
-    MyProfile();
-  }, []);
-
+    } finally {
+      setLoading(false)
+    }
+  };
+  MyProfile();
+}, []);
   const getFileName = (url) => {
   return url.split('/').pop()  // URL ka last part = filename
 }
@@ -73,62 +75,60 @@ function Profile() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const payload = {
-      ...createForm,
-      skills: createForm.skills.split(",").map((s) => s.trim()),
-    };
-    try {
-      if (edit) {
-        const res = await updateProfile(payload, data._id);
-        setData(res.data);
-        setEdit(false);
-      } else {
-        const res = await createProfile(payload);
-        setData(res.data);
-        setShowForm(false);
-      }
-      setCreateForm(initialForm);
-    } catch (error) {
-      console.log(error);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  const payload = { ...createForm, skills: createForm.skills.split(",").map((s) => s.trim()) };
+  try {
+    if (edit) {
+      const res = await updateProfile(payload, data._id);
+      setData(res.data);
+      setEdit(false);
+      toast.success('Profile updated!')
+    } else {
+      const res = await createProfile(payload);
+      setData(res.data);
+      setShowForm(false);
+      toast.success('Profile created!')
     }
-  };
-
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const formData = new FormData()
-    formData.append('profilePhoto', file)
-    try {
-      const res = await uploadProfilePhoto(data._id, formData)
-      setData(res.data)
-    } catch (error) {
-      console.log(error)
-    }
+    setCreateForm(initialForm);
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Something went wrong')
   }
+};
 
-  const handleResumeUpload = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const formData = new FormData()
-    formData.append('resume', file)
-    try {
-      const res = await uploadResume(data._id, formData)
-      setData(res.data)
-    } catch (error) {
-      console.log(error)
-    }
+const handlePhotoUpload = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  const formData = new FormData()
+  formData.append('profilePhoto', file)
+  try {
+    const res = await uploadProfilePhoto(data._id, formData)
+    setData(res.data)
+    toast.success('Photo updated!')
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Something went wrong')
   }
+}
+
+const handleResumeUpload = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  const formData = new FormData()
+  formData.append('resume', file)
+  try {
+    const res = await uploadResume(data._id, formData)
+    setData(res.data)
+    toast.success('Resume uploaded!')
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Something went wrong')
+  }
+}
 
   const inputClass = "w-full border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition"
   const labelClass = "text-sm font-semibold text-gray-700"
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-400 animate-pulse">Loading profile...</p>
-    </div>
-  )
+
+if (loading) return <Spinner />
 
   if (showForm || edit) {
     return (
@@ -220,7 +220,7 @@ function Profile() {
                   type="file"
                   accept="image/jpg, image/jpeg, image/png"
                   onChange={handlePhotoUpload}
-                  className="hidden"  z
+                  className="hidden"  
 
 
                 />

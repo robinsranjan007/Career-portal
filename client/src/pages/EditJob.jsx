@@ -1,5 +1,7 @@
+import Spinner from '@/components/Spinner';
 import { getJobById, updateJob } from '@/services/jobService';
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 
 function EditJob() {
@@ -37,7 +39,8 @@ function EditJob() {
           jobstatus: res.data.jobstatus
         });
       } catch (error) {
-        console.log(error)
+       
+        toast.error(error?.response?.data?.message || 'Something went wrong')
       } finally {
         setLoading(false)
       }
@@ -45,25 +48,23 @@ function EditJob() {
     getJobDetails()
   }, [])
 
-  const handleUpdateJob = async (e) => {
-    e.preventDefault()
-    try {
-      setUpdating(true)
-      const formData = { ...job, jobSkills: job.jobSkills.split(",").map((s) => s.trim()) }
-      await updateJob(jobId, formData)
-      navigate('/employer/dashboard')
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setUpdating(false)
-    }
+const handleUpdateJob = async (e) => {
+  e.preventDefault()
+  try {
+    setUpdating(true)
+    const formData = { ...job, jobSkills: job.jobSkills.split(",").map((s) => s.trim()) }
+    console.log('formData:', formData)
+    await updateJob(formData, jobId)
+    toast.success('Job updated!')
+    navigate('/employer/dashboard')
+  } catch (error) {
+    toast.error(error?.response?.data?.message || 'Something went wrong')
+  } finally {
+    setUpdating(false)
   }
+}
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-400 animate-pulse">Loading job details...</p>
-    </div>
-  )
+if (loading) return <Spinner />
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-green-50 flex items-center justify-center px-4 py-12">
